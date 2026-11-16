@@ -1,14 +1,39 @@
-const { createServer } = require('node:http');
-
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const server = createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+self.addEventListener('fetch', (event) => {
+
+  event.respondWith(fetch(event.request));
 });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('Service Worker registered:', reg))
+      .catch((err) => console.error('Service Worker registration failed:', err));
+  });
+}
+
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn'); // លាក់ប៊ូតុងនេះជាមុនសិនតាមរយៈ CSS
+
+window.addEventListener('beforeinstallprompt', (e) => {
+
+  e.preventDefault();
+
+  deferredPrompt = e;
+
+  if (installBtn) installBtn.style.display = 'inline-block';
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  });
+}
