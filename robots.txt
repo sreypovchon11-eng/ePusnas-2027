@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sreypov-chorn-27-a.vercel.app/sitemap.xml
+Sitemap: https://epusnas-2027.vercel.app/sitemap.xml
