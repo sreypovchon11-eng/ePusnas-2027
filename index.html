@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ePusnas—Library</title>
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231EC760'/%3E%3Cpath d='M32 22c-7-5-14-5-20-2v25c7-3 14-3 20 2 6-5 13-5 20-2V20c-6-3-13-3-20 2Z' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M32 22v25' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"
+  />
+
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            brand: {
+              green: '#1EC760',
+              greenDark: '#17A84F',
+              navy: '#1B2559',
+              bg: '#F4F5F9',
+              muted: '#A3AED0',
+            }
+          },
+          boxShadow: {
+            soft: '0px 10px 30px rgba(112, 144, 176, 0.08)',
+            card: '0px 4px 20px rgba(112, 144, 176, 0.06)',
+            book: '0px 8px 18px rgba(15, 23, 42, 0.14)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Custom scrollbar for clean editorial look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* Artistic CSS Book Cover Base & Spine Effect */
+    .book-cover {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+    }
+    .book-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.03) 6%, rgba(0,0,0,0.12) 10%, rgba(255,255,255,0) 18%);
+      pointer-events: none;
+    }
+    .book-card-group:hover .book-cover {
+      transform: translateY(-4px) scale(1.015);
+      box-shadow: 0 14px 26px -6px rgba(27, 37, 89, 0.22);
+    }
+
+    /* Custom modal animations */
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal {
+      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-[#F4F5F9] text-[#1B2559] font-sans antialiased selection:bg-[#1EC760]/20 selection:text-[#1B2559]">
+
+  <!-- ======================================================================= -->
+  <!-- FULL-SCREEN LOGIN / AUTHENTICATION GATE (Displayed Before Dashboard)    -->
+  <!-- ======================================================================= -->
+  <div id="authGate" class="min-h-screen w-full bg-[#F4F5F9] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+    <!-- Subtle Decorative Background Shapes -->
+    <div class="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-[#1EC760]/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-24 w-96 h-96 rounded-full bg-[#1B2559]/10 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 w-full max-w-[940px] bg-white rounded-[28px] shadow-soft border border-slate-100 overflow-hidden grid grid-cols-1 lg:grid-cols-12 animate-modal">
+      
+      <!-- Left Editorial Welcome Panel (Hidden on small mobile, visible on lg+) -->
+      <div class="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-[#1EC760] via-[#19B556] to-[#139646] p-9 text-white flex-col justify-between relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/10 pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-10 w-48 h-48 rounded-full bg-[#1B2559]/15 pointer-events-none"></div>
+
+        <div class="relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-semibold mb-6">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Digital Reading Sanctuary</span>
+          </div>
+          <h2 class="text-2xl font-extrabold leading-snug tracking-tight">
+            Read anywhere, anytime with ePusnas.
+          </h2>
+          <p class="text-xs text-emerald-50/90 mt-3 leading-relaxed">
+            Access thousands of curated novels, design journals, and bestsellers. Sync your bookmarks and reading progress across all devices.
+          </p>
+        </div>
+
+        <!-- Mini Preview Stack Card -->
+        <div class="relative z-10 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 mt-8">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white text-[#1EC760] flex items-center justify-center font-extrabold text-sm shadow-xs shrink-0">
+              48k+
+            </div>
+            <div>
+              <p class="text-xs font-bold text-white">Active Book Lovers</p>
+              <p class="text-[11px] text-emerald-100">Join live reading clubs & discussions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Authentication Form Panel -->
+      <div class="lg:col-span-7 p-7 sm:p-10 flex flex-col justify-center">
+        <!-- Brand Logo -->
+        <div class="mb-6">
+          <div class="inline-flex items-center gap-5 tracking-tight select-none mb-3">
+            <div class="w-[85px] h-[85px] rounded-[20px] bg-[#1EC760] flex items-center justify-center shrink-0">
+              <i data-lucide="book-open" class="w-9 h-9 text-white" stroke-width="2"></i>
+            </div>
+            <span class="text-4xl font-extrabold">
+              <span class="text-[#1EC760]">e</span><span class="text-[#1B2559]">Pusnas</span>
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-[26px] font-extrabold text-[#1B2559] tracking-tight">
+            Welcome back to ePusnas
+          </h1>
+          <p class="text-xs sm:text-sm text-[#8F9BBA] mt-1">
+            Sign in to access your personal library and continue reading
+          </p>
+        </div>
+
+        <!-- Social Login Buttons (Google & Facebook) -->
+        <div class="space-y-3">
+          <!-- Continue with Google -->
+          <button
+            id="googleLoginBtn"
+            type="button"
+            onclick="handleSocialLogin('Google')"
+            class="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-white hover:bg-slate-50 active:scale-[0.99] text-[#1B2559] text-xs sm:text-sm font-bold border border-slate-200/90 shadow-xs transition-all cursor-pointer"
+          >
+            <!-- Authentic Multi-color Google 'G' SVG -->
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/>
+              <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <!-- Continue with Facebook -->
+          <button
+            id="facebookLoginBtn"
+            type="button"
+            onclick="handleSocialLogin('Facebook')"
+            class="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-sm shadow-[#1877F2]/25 transition-all cursor-pointer"
+          >
+            <!-- Authentic Facebook 'f' SVG -->
+            <svg class="w-5 h-5 shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span>Continue with Facebook</span>
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative my-6 flex items-center justify-center">
+          <div class="border-t border-slate-200/80 w-full"></div>
+          <span class="bg-white px-3 text-[11px] font-medium text-[#A3AED0] whitespace-nowrap">or sign in with email</span>
+          <div class="border-t border-slate-200/80 w-full"></div>
+        </div>
+
+        <!-- Optional Quick Email / Password Form -->
+        <form onsubmit="handleEmailLogin(event)" class="space-y-3.5">
+          <div>
+            <label for="loginEmail" class="block text-xs font-bold text-[#1B2559] mb-1">Email Address</label>
+            <input
+              id="loginEmail"
+              type="email"
+              required
+              value="ade.adiningrat@epusnas.id"
+              placeholder="you@example.com"
+              class="w-full px-4 py-2.5 rounded-xl bg-[#F4F5F9] text-xs sm:text-sm text-[#1B2559] placeholder-[#A3AED0] border border-transparent focus:border-[#1EC760] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1EC760]/10 transition-all"
+            />
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="loginPassword" class="block text-xs font-bold text-[#1B2559]">Password</label>
+              <button type="button" onclick="showToast('Password reset link sent to your email!')" class="text-[11px] font-semibold text-[#1EC760] hover:underline">Forgot password?</button>
+            </div>
+            <input
+              id="loginPassword"
+              type="password"
+              required
+              value="••••••••••••"
+              placeholder="Enter your password"
+              class="w-full px-4 py-2.5 rounded-xl bg-[#F4F5F9] text-xs sm:text-sm text-[#1B2559] placeholder-[#A3AED0] border border-transparent focus:border-[#1EC760] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1EC760]/10 transition-all"
+            />
+          </div>
+          <button
+            id="emailLoginBtn"
+            type="submit"
+            class="w-full py-3 rounded-xl bg-[#1EC760] hover:bg-[#17A84F] active:scale-[0.99] text-white text-xs sm:text-sm font-extrabold shadow-md shadow-[#1EC760]/25 transition-all cursor-pointer mt-1"
+          >
+            Sign In to Library
+          </button>
+        </form>
+
+        <p class="text-[11px] text-center text-[#A3AED0] mt-5">
+          By continuing, you agree to ePusnas <span class="text-[#1B2559] font-semibold">Terms of Service</span> & <span class="text-[#1B2559] font-semibold">Privacy Policy</span>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Shell (Hidden until user authenticates) -->
+  <div id="dashboardApp" class="hidden min-h-screen flex-col lg:flex-row max-w-[1600px] mx-auto">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden lg:hidden transition-opacity"></div>
+
+    <!-- Left Sidebar -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-white border-r border-slate-200/70 flex flex-col justify-between px-6 py-7 transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
+      <div>
+        <!-- Brand Logo -->
+        <div class="flex items-center justify-between mb-10 px-2">
+          <a href="#" onclick="switchTab('dashboard'); return false;" class="flex items-center gap-3 tracking-tight font-extrabold select-none">
+            <span class="w-12 h-12 rounded-xl bg-[#1EC760] flex items-center justify-center shrink-0">
+              <i data-lucide="book-open" class="w-6 h-6 text-white" stroke-width="2"></i>
+            </span>
+            <span class="text-2xl">
+              <span class="text-[#1EC760]">e</span><span class="text-[#1B2559]">Pusnas</span>
+            </span>
+          </a>
+          <button onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Close sidebar">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Primary Navigation -->
+        <nav class="space-y-1.5" aria-label="Main Navigation">
+          <button data-nav="dashboard" onclick="switchTab('dashboard')" class="nav-item w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-bold text-[#1B2559] bg-slate-50/90 transition-all">
+            <i data-lucide="layout-grid" class="w-5 h-5 text-[#1B2559]"></i>
+            <span>Dashboard</span>
+          </button>
+
+          <button data-nav="library" onclick="switchTab('library')" class="nav-item w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-[#1B2559] hover:bg-slate-50/70 transition-all">
+            <span class="flex items-center gap-3.5">
+              <i data-lucide="book-marked" class="w-5 h-5"></i>
+              <span>Your Library</span>
+            </span>
+            <span id="libraryBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">4</span>
+          </button>
+
+          <button data-nav="timeline" onclick="switchTab('timeline')" class="nav-item w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-[#1B2559] hover:bg-slate-50/70 transition-all">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span>Timeline</span>
+          </button>
+
+          <button data-nav="trending" onclick="switchTab('trending')" class="nav-item w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-[#1B2559] hover:bg-slate-50/70 transition-all">
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+            <span>Trending</span>
+          </button>
+        </nav>
+
+        <!-- Online Friend Section -->
+        <div class="mt-10 pt-6 border-t border-slate-100 px-2">
+          <div class="flex items-center justify-between mb-3.5">
+            <h3 class="text-xs font-semibold text-[#1B2559] tracking-wide">Online Friend</h3>
+            <span class="text-[11px] font-medium text-[#1EC760]">13 active</span>
+          </div>
+          <div class="flex items-center -space-x-1.5 sm:space-x-1.5 flex-wrap gap-y-2">
+            <!-- Friend 1 -->
+            <button onclick="showToast('Saba Hafezi is currently reading The Beauty of the Night')" class="relative group focus:outline-none" title="Saba Hafezi • Online">
+              <div class="w-8 h-8 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center text-xs font-bold text-amber-800 shadow-xs group-hover:scale-105 transition-transform">SH</div>
+              <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1EC760] ring-2 ring-white"></span>
+            </button>
+            <!-- Friend 2 -->
+            <button onclick="showToast('Greta Mae Evans is browsing Science Fiction')" class="relative group focus:outline-none" title="Greta Mae • Online">
+              <div class="w-8 h-8 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center text-xs font-bold text-emerald-800 shadow-xs group-hover:scale-105 transition-transform">GM</div>
+              <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1EC760] ring-2 ring-white"></span>
+            </button>
+            <!-- Friend 3 -->
+            <button onclick="showToast('Ana Park just finished Nefarious Games')" class="relative group focus:outline-none" title="Ana Park • Online">
+              <div class="w-8 h-8 rounded-full bg-rose-100 border-2 border-white flex items-center justify-center text-xs font-bold text-rose-800 shadow-xs group-hover:scale-105 transition-transform">AP</div>
+              <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1EC760] ring-2 ring-white"></span>
+            </button>
+            <!-- Friend 4 -->
+            <button onclick="showToast('Patrick Ness is highlighting The Value of Design')" class="relative group focus:outline-none" title="Patrick Ness • Online">
+              <div class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-800 shadow-xs group-hover:scale-105 transition-transform">PN</div>
+              <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1EC760] ring-2 ring-white"></span>
+            </button>
+            <!-- Friend 5 -->
+            <button onclick="showToast('Claire Dubois joined Book Lovers Club')" class="relative group focus:outline-none" title="Claire Dubois • Online">
+              <div class="w-8 h-8 rounded-full bg-sky-100 border-2 border-white flex items-center justify-center text-xs font-bold text-sky-800 shadow-xs group-hover:scale-105 transition-transform">CD</div>
+              <span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1EC760] ring-2 ring-white"></span>
+            </button>
+            <!-- +8 Blue Badge -->
+            <button onclick="switchTab('timeline')" class="w-8 h-8 rounded-full bg-[#1B3B82] hover:bg-[#152e66] text-white text-[11px] font-bold flex items-center justify-center border-2 border-white shadow-xs transition-transform hover:scale-105" title="View all 13 online friends">
+              8+
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Utility Links -->
+      <div class="pt-4 border-t border-slate-100 space-y-1">
+        <button onclick="openHelpModal()" class="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-[#1B2559] hover:bg-slate-50 transition-all">
+          <span class="w-5 h-5 rounded-full bg-[#A3AED0]/20 text-[#8F9BBA] flex items-center justify-center text-xs font-bold">?</span>
+          <span>Help</span>
+        </button>
+        <button onclick="handleLogout()" class="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-rose-600 hover:bg-rose-50/60 transition-all cursor-pointer">
+          <i data-lucide="log-out" class="w-5 h-5"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- Top Header Bar -->
+      <header class="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/60 px-4 sm:px-8 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <!-- Left: Mobile Menu Button + Search Input -->
+          <div class="flex items-center gap-3 flex-1 max-w-xl">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2.5 rounded-xl bg-[#F4F5F9] text-[#1B2559] hover:bg-slate-200/70 transition-colors" aria-label="Open menu">
+              <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 text-[#8F9BBA] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Search book titles, authors, publishers..."
+                oninput="handleSearch(this.value)"
+                class="w-full bg-[#F4F5F9] text-sm text-[#1B2559] placeholder-[#A3AED0] pl-11 pr-9 py-2.5 rounded-xl border border-transparent focus:border-[#1EC760]/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1EC760]/10 transition-all"
+              />
+              <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5" aria-label="Clear search">
+                <i data-lucide="x-circle" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Controls: Messages, Notifications, User Profile -->
+          <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+            <!-- Message Button -->
+            <div class="relative">
+              <button onclick="toggleHeaderDropdown('msgPopover')" class="relative p-2.5 rounded-xl text-[#8F9BBA] hover:text-[#1B2559] hover:bg-[#F4F5F9] transition-colors" aria-label="Messages">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+              </button>
+              <!-- Messages Popover -->
+              <div id="msgPopover" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-soft border border-slate-100 p-4 z-30">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold text-[#1B2559]">Direct Messages</span>
+                  <span class="text-[11px] font-semibold text-[#1EC760]">2 New</span>
+                </div>
+                <div class="space-y-3 text-xs">
+                  <div class="p-2.5 rounded-xl bg-[#F4F5F9]/80 hover:bg-[#F4F5F9] cursor-pointer" onclick="showToast('Opened chat with Saba Hafezi'); closeHeaderDropdowns();">
+                    <p class="font-semibold text-[#1B2559]">Saba Hafezi</p>
+                    <p class="text-slate-500 mt-0.5 line-clamp-1">"Have you reached Chapter 6 yet? The ending is..."</p>
+                  </div>
+                  <div class="p-2.5 rounded-xl hover:bg-[#F4F5F9] cursor-pointer" onclick="showToast('Opened Book Club invite'); closeHeaderDropdowns();">
+                    <p class="font-semibold text-[#1B2559]">ePusnas Reading Club</p>
+                    <p class="text-slate-500 mt-0.5 line-clamp-1">Weekly discussion starts tonight at 8:00 PM.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Bell Button -->
+            <div class="relative">
+              <button onclick="toggleHeaderDropdown('notifPopover')" class="relative p-2.5 rounded-xl text-[#8F9BBA] hover:text-[#1B2559] hover:bg-[#F4F5F9] transition-colors" aria-label="Notifications">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+              </button>
+              <!-- Notifications Popover -->
+              <div id="notifPopover" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-soft border border-slate-100 p-4 z-30">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold text-[#1B2559]">Notifications</span>
+                  <button onclick="showToast('All notifications marked as read'); closeHeaderDropdowns();" class="text-[11px] font-medium text-[#1EC760] hover:underline">Mark read</button>
+                </div>
+                <div class="space-y-2.5 text-xs">
+                  <div class="flex items-start gap-2.5 p-2 rounded-xl bg-emerald-50/60">
+                    <span class="w-2 h-2 rounded-full bg-[#1EC760] mt-1.5 shrink-0"></span>
+                    <div>
+                      <p class="font-semibold text-[#1B2559]">Reading Streak: 7 Days!</p>
+                      <p class="text-slate-500 mt-0.5">You're 45 XP away from Level 3 Reader.</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0"></span>
+                    <div>
+                      <p class="font-semibold text-[#1B2559]">New Arrival in Trending</p>
+                      <p class="text-slate-500 mt-0.5">"The Black Universe" is now available to borrow.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="relative pl-1 sm:pl-2 border-l border-slate-200/80">
+              <button onclick="toggleHeaderDropdown('profilePopover')" class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-[#F4F5F9] transition-colors text-left">
+                <div id="headerUserAvatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1B2559] to-[#3B4CCA] text-white flex items-center justify-center font-bold text-xs shadow-xs ring-2 ring-slate-100">
+                  AA
+                </div>
+                <div class="hidden sm:block">
+                  <p id="headerUserName" class="text-xs font-bold text-[#1B2559] leading-tight">Ade Adiningrat</p>
+                  <p id="headerUserSub" class="text-[11px] font-medium text-[#A3AED0] mt-0.5 flex items-center gap-1">
+                    <span>Level 2</span>
+                  </p>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-[#8F9BBA] hidden sm:block"></i>
+              </button>
+
+              <!-- Profile Dropdown -->
+              <div id="profilePopover" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-soft border border-slate-100 p-3 z-30">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1.5">
+                  <p id="dropdownUserName" class="text-xs font-bold text-[#1B2559]">Ade Adiningrat</p>
+                  <p id="dropdownUserEmail" class="text-[11px] text-slate-400 truncate mt-0.5">ade.adiningrat@epusnas.id</p>
+                  <span id="dropdownProviderBadge" class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-[#1EC760] text-[10px] font-bold">
+                    Signed in with Google
+                  </span>
+                </div>
+                <button onclick="switchTab('library'); closeHeaderDropdowns();" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-[#F4F5F9] hover:text-[#1B2559] flex items-center gap-2">
+                  <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Saved Books
+                </button>
+                <button onclick="openReaderModal('beauty-of-the-night'); closeHeaderDropdowns();" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-[#F4F5F9] hover:text-[#1B2559] flex items-center gap-2">
+                  <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Resume Reading
+                </button>
+                <div class="border-t border-slate-100 my-1"></div>
+                <button onclick="closeHeaderDropdowns(); handleLogout();" class="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2">
+                  <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Workspace Container -->
+      <main id="mainWorkspace" class="flex-1 p-4 sm:p-6 lg:p-8">
+        <!-- Rendered dynamically by JavaScript based on active tab & search query -->
+      </main>
+    </div>
+  </div>
+
+  <!-- Book Detail & Preview Modal -->
+  <div id="bookDetailModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-modal">
+      <div id="bookDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- Interactive eBook Reader Modal -->
+  <div id="readerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-900/65 backdrop-blur-xs">
+    <div id="readerContainer" class="bg-[#FCFBF8] text-[#1E293B] rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200/80 overflow-hidden animate-modal transition-colors duration-200">
+      <!-- Reader Top Toolbar -->
+      <div id="readerHeader" class="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-slate-200/70 bg-white/80">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#1EC760] shrink-0"></span>
+          <div class="truncate">
+            <h4 id="readerBookTitle" class="text-sm font-bold text-[#1B2559] truncate">The Beauty of the Night</h4>
+            <p id="readerBookAuthor" class="text-[11px] text-slate-500 truncate">by Marjan Kamali</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Font Size Controls -->
+          <button onclick="changeReaderFontSize(-1)" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-100" title="Decrease text size">A-</button>
+          <button onclick="changeReaderFontSize(1)" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-100" title="Increase text size">A+</button>
+          <!-- Sepia / Dark Theme Toggle -->
+          <button onclick="toggleReaderTheme()" id="readerThemeBtn" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600" title="Toggle Night Mode">
+            <i data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+          <!-- Close Reader -->
+          <button onclick="closeModal('readerModal')" class="p-2 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-600 ml-1" title="Close Reader">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reader Page Body -->
+      <div class="flex-1 overflow-y-auto px-6 sm:px-14 py-8 sm:py-10">
+        <div class="max-w-xl mx-auto">
+          <p id="readerChapterLabel" class="text-xs font-bold uppercase tracking-widest text-[#1EC760] mb-2">Chapter IV • The Orchard at Dusk</p>
+          <h2 id="readerChapterHeading" class="font-serif text-2xl sm:text-3xl font-bold mb-6 leading-snug">Whispers Beneath the Mulberry Trees</h2>
+          <div id="readerPageText" class="space-y-5 leading-relaxed text-[16px] font-normal">
+            <!-- Dynamic page content -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Reader Footer / Pagination -->
+      <div id="readerFooter" class="px-5 sm:px-8 py-4 border-t border-slate-200/70 bg-white/80 flex items-center justify-between gap-4">
+        <button onclick="turnPage(-1)" id="prevPageBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-all">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i> Previous
+        </button>
+
+        <div class="flex flex-col items-center flex-1 max-w-xs">
+          <span id="readerPageIndicator" class="text-xs font-semibold text-slate-600 mb-1.5">Page 53 of 124</span>
+          <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div id="readerProgressBar" class="h-full bg-[#1EC760] rounded-full transition-all duration-300" style="width: 43%"></div>
+          </div>
+        </div>
+
+        <button onclick="turnPage(1)" id="nextPageBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-[#1EC760] hover:bg-[#17A84F] text-white shadow-xs transition-all">
+          Next Page <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Community Modal -->
+  <div id="communityModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-modal relative">
+      <button onclick="closeModal('communityModal')" class="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="w-12 h-12 rounded-2xl bg-[#1EC760]/15 text-[#1EC760] flex items-center justify-center mb-4">
+        <i data-lucide="sparkles" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-[#1B2559]">Join ePusnas Book Lovers</h3>
+      <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">Connect with over 48,000 readers, join weekly live author Q&As, and unlock exclusive reading badges.</p>
+
+      <form onsubmit="submitCommunityForm(event)" class="mt-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-[#1B2559] mb-1.5">Favorite Genre</label>
+          <select id="favGenreSelect" class="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F5F9] text-sm text-[#1B2559] border border-transparent focus:border-[#1EC760] focus:bg-white focus:outline-none">
+            <option>Literary Fiction & Drama</option>
+            <option>Science Fiction & Mystery</option>
+            <option>Self Improvement & Philosophy</option>
+            <option>Design, Art & Lifestyle</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#1B2559] mb-1.5">Weekly Reading Goal</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="goal" value="1 book/wk" class="peer sr-only" checked />
+              <div class="text-center py-2 px-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 peer-checked:border-[#1EC760] peer-checked:bg-[#1EC760]/10 peer-checked:text-[#1B2559]">1 Book/wk</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="goal" value="30 mins/day" class="peer sr-only" />
+              <div class="text-center py-2 px-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 peer-checked:border-[#1EC760] peer-checked:bg-[#1EC760]/10 peer-checked:text-[#1B2559]">30m/day</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="goal" value="50 pages/wk" class="peer sr-only" />
+              <div class="text-center py-2 px-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 peer-checked:border-[#1EC760] peer-checked:bg-[#1EC760]/10 peer-checked:text-[#1B2559]">50 pgs/wk</div>
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-full bg-[#1EC760] hover:bg-[#17A84F] text-white font-bold text-sm shadow-md shadow-[#1EC760]/25 transition-all">
+          Complete Membership
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-modal relative">
+      <button onclick="closeModal('helpModal')" class="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="text-lg font-extrabold text-[#1B2559]">ePusnas Quick Guide</h3>
+      <ul class="mt-4 space-y-3 text-xs text-slate-600 leading-relaxed">
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-[#1EC760]/15 text-[#1EC760] font-bold flex items-center justify-center shrink-0">1</span>
+          <span><strong>Instant Search:</strong> Type any book title, author, or category in the top search bar to filter across the entire catalog in real time.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-[#1EC760]/15 text-[#1EC760] font-bold flex items-center justify-center shrink-0">2</span>
+          <span><strong>Interactive Reader:</strong> Click <em>Read Now</em> on any book to open the distraction-free eReader with font sizing, night mode, and page progress tracking.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-[#1EC760]/15 text-[#1EC760] font-bold flex items-center justify-center shrink-0">3</span>
+          <span><strong>Personal Library:</strong> Bookmark any title to save it directly into your <em>Your Library</em> tab.</span>
+        </li>
+      </ul>
+      <button onclick="closeModal('helpModal')" class="mt-6 w-full py-2.5 rounded-full bg-[#1B2559] text-white text-xs font-bold hover:bg-slate-800 transition-colors">Got it</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Application Logic & Data -->
+  <script>
+    // =========================================================================
+    // 1. BOOK CATALOG DATASET
+    // =========================================================================
+    const BOOKS_DATA = [
+      {
+        id: 'beauty-of-the-night',
+        title: 'The Beauty of the Night',
+        author: 'Marjan Kamali',
+        publisher: 'Gallery Books',
+        category: 'Literary Fiction',
+        rating: 4.9,
+        pages: 124,
+        currentPage: 53,
+        section: 'hero',
+        inLibrary: true,
+        coverStyle: 'night-sky',
+        description:
+          'Growing up in a small rice-farming village in 1960s Iran, eleven-year-old Saba Hafezi and her twin sister, Mahtab, are captivated by America. Growing up in a small rice-farming village in 1960s Iran, eleven-year-old Saba Hafezi and her twin sister, gives her a freedom...',
+        samplePages: [
+          {
+            chapter: 'Chapter IV • The Orchard at Dusk',
+            heading: 'Whispers Beneath the Mulberry Trees',
+            paragraphs: [
+              'Whenever the evening breeze swept down from the Alborz mountains, carrying the scent of damp earth and jasmine, Saba opened her worn notebook on the stone wall overlooking the rice paddies.',
+              'Her twin sister, Mahtab, sat beside her with a stack of illustrated magazines sent from an aunt living across the ocean—glossy pages filled with towering bridges, neon diners, and libraries that stayed open past midnight.',
+              '"One day," Mahtab whispered, tracing the skyline with her fingertip, "we will read every book on those shelves and write our own stories between them."'
+            ]
+          },
+          {
+            chapter: 'Chapter IV • The Orchard at Dusk',
+            heading: 'Lanterns Along the Riverbank',
+            paragraphs: [
+              'As dusk deepened into indigo, the village lanterns flickered on one by one, reflecting like fallen stars in the irrigation canals.',
+              'Their father called from the courtyard veranda, his voice warm with the promise of cardamom tea and roasted pistachios, yet Saba lingered for one more page under the silver crescent moon.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'a-palm-from-our-future',
+        title: 'A Palm from our Future',
+        author: 'Samira Hadid',
+        publisher: 'Horizon Press',
+        category: 'Contemporary Fiction',
+        rating: 4.7,
+        pages: 248,
+        currentPage: 12,
+        section: 'trending',
+        inLibrary: true,
+        coverStyle: 'palm-future',
+        description:
+          'A lyrical meditation on memory, migration, and the quiet resilience of family letters rediscovered decades after they were written.',
+        samplePages: [
+          {
+            chapter: 'Chapter I • Sunlit Postcards',
+            heading: 'The Cedar Box in the Attic',
+            paragraphs: [
+              'Inside the cedar box lay forty-two envelopes tied with faded terracotta ribbon, each postmarked from a coastal town that had since changed its name.',
+              'Nadia held the topmost letter up to the afternoon light, admiring the slanted cursive that seemed to lean forward into tomorrow.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'the-black-universe',
+        title: 'The Black Universe',
+        author: 'Greta Mae Evans',
+        publisher: 'Nova Sci-Fi',
+        category: 'Science Fiction',
+        rating: 4.8,
+        pages: 312,
+        currentPage: 84,
+        section: 'trending',
+        inLibrary: false,
+        coverStyle: 'black-universe',
+        description:
+          'Beyond the outer rim of the Helios relay, an expeditionary archivist uncovers a silent orbital station broadcasting coordinates to an uncharted galaxy.',
+        samplePages: [
+          {
+            chapter: 'Log 09 • Event Horizon',
+            heading: 'Signals from the Quiet Sector',
+            paragraphs: [
+              'Space is never truly silent if you listen across the sub-harmonic frequencies. For six months aboard the Cassini-IX, Dr. Aris Thorne cataloged nothing but solar static.',
+              'Then, at 03:14 ship time, a rhythmic pulse cut through the dark like a lighthouse beam.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'nefarious-games',
+        title: 'Nefarious Games',
+        author: 'Ana Park',
+        publisher: 'Cipher House',
+        category: 'Mystery & Thriller',
+        rating: 4.9,
+        pages: 276,
+        currentPage: 140,
+        section: 'trending',
+        inLibrary: true,
+        coverStyle: 'nefarious-games',
+        description:
+          'Inside an invitation-only grandmaster tournament in Seoul, every move on the board mirrors a high-stakes secret off the clock.',
+        samplePages: [
+          {
+            chapter: 'Round Three • Sicilian Defense',
+            heading: 'Sixty-Four Squares of Silence',
+            paragraphs: [
+              'The auditorium fell hushed as the ivory knight clicked onto f6. Across the table, Julian’s expression remained unreadable beneath the stage spotlights.',
+              'Only two people in the room knew that the annotated scorecard tucked inside his blazer held the key to the missing manuscript.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'the-four-of-us',
+        title: 'The Four of Us',
+        author: 'Claudia Wilson',
+        publisher: 'Sunbeam Books',
+        category: 'Drama & Friendship',
+        rating: 4.6,
+        pages: 218,
+        currentPage: 1,
+        section: 'trending',
+        inLibrary: false,
+        coverStyle: 'four-of-us',
+        description:
+          'Four childhood friends reunite in Lisbon for one transformative summer to fulfill a pact they scribbled on a café napkin ten years earlier.',
+        samplePages: [
+          {
+            chapter: 'Part One • Terracotta Roofs',
+            heading: 'Reunion at Miradouro',
+            paragraphs: [
+              'The tram rattled up the cobblestone hill just as Elena spotted Maya waving from the corner balcony overlooking the Tagus River.',
+              'Ten years had altered their hairstyles and cities, yet within thirty seconds they were laughing as if no time had passed at all.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'journaling',
+        title: 'Journaling',
+        author: 'Laura Goodwell',
+        publisher: 'Mindful Ink',
+        category: 'Self Improvement',
+        rating: 4.8,
+        pages: 180,
+        currentPage: 45,
+        section: 'recommended',
+        inLibrary: true,
+        coverStyle: 'journaling',
+        description:
+          'Keeping your life organized: practical prompts, analog reflection systems, and daily clarity rituals for creative minds.',
+        samplePages: [
+          {
+            chapter: 'Chapter II • Morning Pages',
+            heading: 'Clearing Mental Clutter on Paper',
+            paragraphs: [
+              'Before checking a single notification, give yourself ten unhurried minutes with a fountain pen and an unruled page.',
+              'Writing by hand slows your thoughts down to the speed of intention, turning scattered worries into actionable steps.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'things-i-never-said',
+        title: 'Things I Never Said',
+        author: 'Emilie Greener',
+        publisher: 'Terracotta Press',
+        category: 'Poetry & Prose',
+        rating: 4.7,
+        pages: 164,
+        currentPage: 1,
+        section: 'recommended',
+        inLibrary: false,
+        coverStyle: 'never-said',
+        description:
+          'An intimate collection of modern letters, unspoken apologies, and quiet moments of grace illustrated in warm botanical tones.',
+        samplePages: [
+          {
+            chapter: 'Section I • Unsent Letters',
+            heading: 'Between the Lines',
+            paragraphs: [
+              'There are conversations we rehearse on rainy train rides home—words folded neatly into coat pockets and saved for a courage that arrives a season late.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'daily-beauty-tips',
+        title: 'Daily Beauty Tips',
+        author: 'Olivia Wilson',
+        publisher: 'Atelier Wellness',
+        category: 'Lifestyle & Care',
+        rating: 4.5,
+        pages: 152,
+        currentPage: 1,
+        section: 'recommended',
+        inLibrary: false,
+        coverStyle: 'beauty-tips',
+        description:
+          'Holistic skincare rituals, botanical ingredients, and effortless seasonal routines designed for radiant everyday confidence.',
+        samplePages: [
+          {
+            chapter: 'Morning Rituals',
+            heading: 'Hydration & Botanicals',
+            paragraphs: [
+              'True radiance begins with gentle consistency: cool water, rosehip nourishment, and protecting your skin barrier before stepping into the morning sun.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'our-last-summer',
+        title: 'Our Last Summer',
+        author: 'Claire Dubois',
+        publisher: 'Riviera Editions',
+        category: 'Novel',
+        rating: 4.8,
+        pages: 260,
+        currentPage: 1,
+        section: 'recommended',
+        inLibrary: false,
+        coverStyle: 'last-summer',
+        description:
+          'Along the sun-drenched shores of Normandy, two painters spend August capturing the shifting tides before heading to different continents.',
+        samplePages: [
+          {
+            chapter: 'August • Low Tide',
+            heading: 'Ochre & Sea Salt',
+            paragraphs: [
+              'Every afternoon at four, the light across the cliffs turned the exact shade of warm honey, and Camille hurried to mix her palette before the clouds rolled in.'
+            ]
+          }
+        ]
+      },
+      // Book of the Year Leaderboard (1 - 5)
+      {
+        id: 'happiness-is-habit',
+        title: 'Happiness is habit',
+        author: 'Margarita Perez',
+        publisher: 'Clarity Press',
+        category: 'Self Improvement',
+        rating: 4.9,
+        pages: 210,
+        currentPage: 1,
+        section: 'leaderboard',
+        rank: 1,
+        inLibrary: false,
+        coverStyle: 'lb-happiness',
+        description:
+          'Ranked #1 Book of the Year: Discover the micro-routines and gratitude frameworks that rewire daily joy.',
+        samplePages: [
+          {
+            chapter: 'Principle 1',
+            heading: 'Small Anchors of Joy',
+            paragraphs: [
+              'Happiness is rarely a single monumental event; it is built quietly through repeatable daily anchors.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'the-value-of-design',
+        title: 'The value of Design',
+        author: 'Patrick Ness',
+        publisher: 'Monolith Studio',
+        category: 'Philosophy',
+        rating: 4.9,
+        pages: 240,
+        currentPage: 1,
+        section: 'leaderboard',
+        rank: 2,
+        inLibrary: false,
+        coverStyle: 'lb-design',
+        description:
+          'A thoughtful exploration of human-centered objects, Swiss grid harmony, and why thoughtful design elevates everyday life.',
+        samplePages: [
+          {
+            chapter: 'Essay I',
+            heading: 'Form Follows Empathy',
+            paragraphs: [
+              'Great design disappears into effortless usability, leaving behind only calm clarity.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'the-guardian-of-life',
+        title: 'The Guardian of Life',
+        author: 'Eric Drooker',
+        publisher: 'Terra Science',
+        category: 'Science',
+        rating: 4.8,
+        pages: 295,
+        currentPage: 1,
+        section: 'leaderboard',
+        rank: 3,
+        inLibrary: false,
+        coverStyle: 'lb-guardian',
+        description:
+          'Journey deep into Earth’s biosphere and the invisible ecological networks sustaining life across our blue planet.',
+        samplePages: [
+          {
+            chapter: 'Chapter I',
+            heading: 'The Living Canopy',
+            paragraphs: [
+              'Beneath the forest floor lies a vast communicative web linking ancient roots across miles of wilderness.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'friend-novel',
+        title: 'Friend',
+        author: 'Daniel Gallego',
+        publisher: 'Modern Classics',
+        category: 'Novel',
+        rating: 4.7,
+        pages: 198,
+        currentPage: 1,
+        section: 'leaderboard',
+        rank: 4,
+        inLibrary: false,
+        coverStyle: 'lb-friend',
+        description:
+          'A poignant, minimalist story about loyalty, quiet companionship, and walking beside someone through life’s changing seasons.',
+        samplePages: [
+          {
+            chapter: 'Chapter I',
+            heading: 'Two Chairs by the Window',
+            paragraphs: [
+              'True friendship is measured not by constant conversation, but by how comfortable the silence feels between two people.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'how-to-be-creative',
+        title: 'How to be Creative',
+        author: 'Kumbokarno',
+        publisher: 'Spark Lab',
+        category: 'Self Improvement',
+        rating: 4.8,
+        pages: 186,
+        currentPage: 1,
+        section: 'leaderboard',
+        rank: 5,
+        inLibrary: false,
+        coverStyle: 'lb-creative',
+        description:
+          'Playful exercises, lateral thinking puzzles, and fearless sketching habits to unlock breakthrough ideas on demand.',
+        samplePages: [
+          {
+            chapter: 'Workshop 1',
+            heading: 'Embrace the Rough Draft',
+            paragraphs: [
+              'Creativity thrives when you give yourself permission to make bold, imperfect experiments before judging the outcome.'
+            ]
+          }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. ARTISTIC BOOK COVER SVG/CSS GENERATOR
+    // =========================================================================
+    function renderBookCoverHTML(styleKey, size = 'md') {
+      const sizeClasses =
+        size === 'sm'
+          ? 'w-11 h-14 rounded-lg text-[6px] shrink-0'
+          : 'w-full aspect-[3/4.1] rounded-xl shadow-book';
+
+      const covers = {
+        'night-sky': `
+          <div class="book-cover ${sizeClasses} bg-gradient-to-b from-[#0E1E38] via-[#1C3863] to-[#0B1324] text-white p-3 flex flex-col justify-between select-none">
+            <div class="absolute inset-0 opacity-40" style="background-image: radial-gradient(white 1px, transparent 0); background-size: 14px 14px;"></div>
+            <div class="relative z-10 text-center mt-1">
+              <p class="font-serif italic text-[11px] sm:text-xs leading-tight text-sky-100 drop-shadow">The</p>
+              <p class="font-serif font-bold text-sm sm:text-base leading-none tracking-tight text-white drop-shadow">Beauty</p>
+              <p class="font-serif italic text-[9px] text-sky-200 my-0.5">of the</p>
+              <p class="font-serif font-bold text-sm sm:text-base leading-none text-white drop-shadow">Night</p>
+            </div>
+            <div class="relative z-10 mt-auto">
+              <svg viewBox="0 0 120 55" class="w-full h-10 overflow-visible">
+                <path d="M0 55 Q30 22 65 36 T120 26 L120 55 Z" fill="#070D19"/>
+                <circle cx="88" cy="14" r="7" fill="#E2E8F0" opacity="0.85"/>
+                <path d="M72 34 L75 24 L78 34 Z" fill="#070D19"/>
+              </svg>
+            </div>
+          </div>`,
+        'palm-future': `
+          <div class="book-cover ${sizeClasses} bg-[#3D251E] text-[#F5D0A9] p-3.5 flex flex-col justify-between select-none">
+            <div class="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-[#C96A42]/35 blur-xs"></div>
+            <div class="relative z-10 mt-2">
+              <p class="font-sans font-bold text-xs sm:text-sm leading-tight text-[#F7C59F]">a palm<br/>from<br/>our<br/><span class="text-white">future.</span></p>
+            </div>
+            <svg viewBox="0 0 80 50" class="w-16 h-10 self-end text-[#D97746] opacity-90">
+              <path d="M10 48 Q35 20 72 10 M28 36 L44 12 M38 30 L58 14 M46 25 L68 22 M22 40 L32 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>`,
+        'black-universe': `
+          <div class="book-cover ${sizeClasses} bg-gradient-to-br from-[#2B332E] via-[#485249] to-[#171B19] text-white p-3.5 flex flex-col justify-between select-none">
+            <div class="w-14 h-14 mx-auto rounded-full bg-gradient-to-tr from-emerald-900/60 to-amber-100/20 border border-white/15 flex items-center justify-center">
+              <div class="w-7 h-7 rounded-full bg-[#0F1311]"></div>
+            </div>
+            <div class="relative z-10 text-center mb-1">
+              <span class="text-[8px] tracking-[0.2em] uppercase text-emerald-200/80 block">THE</span>
+              <p class="font-extrabold text-xs sm:text-sm tracking-wide leading-tight text-white">BLACK<br/>UNIVERSE</p>
+            </div>
+          </div>`,
+        'nefarious-games': `
+          <div class="book-cover ${sizeClasses} bg-[#F8F9FB] border border-slate-200/80 text-[#1B2559] p-3 flex flex-col justify-between select-none">
+            <div class="text-center">
+              <span class="text-[7px] font-bold tracking-[0.18em] text-slate-400 uppercase block">ANA PARK</span>
+              <p class="font-serif font-extrabold text-xs sm:text-sm leading-tight text-[#D92D4B] mt-0.5">Nefarious<br/><span class="text-[#1E293B]">Games</span></p>
+            </div>
+            <div class="flex items-end justify-center gap-2 pt-1">
+              <div class="w-3.5 h-8 bg-slate-300 rounded-t-full"></div>
+              <div class="w-4 h-11 bg-[#1E293B] rounded-t-full"></div>
+              <div class="w-3 h-7 bg-slate-300 rounded-t-full"></div>
+            </div>
+          </div>`,
+        'four-of-us': `
+          <div class="book-cover ${sizeClasses} bg-[#FCEEE6] p-2.5 flex flex-col justify-between select-none">
+            <p class="text-[9px] font-extrabold tracking-wider text-center text-[#1E293B] uppercase">THE FOUR<br/>OF US</p>
+            <div class="grid grid-cols-2 gap-1.5 my-1 flex-1">
+              <div class="rounded bg-[#F48C5B] flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-[#1E293B]"></span></div>
+              <div class="rounded bg-[#F7A77C] flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-[#3E2723]"></span></div>
+              <div class="rounded bg-[#F7A77C] flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-[#1E293B]"></span></div>
+              <div class="rounded bg-[#F48C5B] flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-[#263238]"></span></div>
+            </div>
+          </div>`,
+        'journaling': `
+          <div class="book-cover ${sizeClasses} bg-[#EFECE6] text-[#1E293B] p-3 flex flex-col justify-between select-none">
+            <p class="font-extrabold text-xs sm:text-sm tracking-tight text-center text-[#1E293B]">Journaling</p>
+            <div class="my-auto mx-auto w-14 h-14 rounded-xl bg-white shadow-xs border border-slate-200/80 p-2 flex flex-col justify-between transform -rotate-3">
+              <div class="h-1 w-8 bg-slate-300 rounded"></div>
+              <div class="h-1 w-10 bg-slate-200 rounded"></div>
+              <div class="h-1 w-6 bg-amber-400 rounded"></div>
+            </div>
+            <span class="text-[7px] text-center font-semibold text-slate-500">Keeping your life organized</span>
+          </div>`,
+        'never-said': `
+          <div class="book-cover ${sizeClasses} bg-[#C85A43] text-white p-3.5 flex flex-col justify-between select-none">
+            <div class="text-center mt-1">
+              <p class="font-serif font-bold text-xs sm:text-sm leading-tight tracking-wide">THINGS<br/>I NEVER<br/>SAID</p>
+            </div>
+            <div class="w-10 h-10 mx-auto rounded-full bg-[#E69D88]/40 flex items-center justify-center">
+              <div class="w-4 h-6 rounded-t-full bg-[#F7D6CC]"></div>
+            </div>
+          </div>`,
+        'beauty-tips': `
+          <div class="book-cover ${sizeClasses} bg-gradient-to-b from-[#FDF6F8] to-[#F7E4EC] text-[#5B3748] p-3 flex flex-col justify-between select-none border border-pink-100">
+            <span class="text-[7px] tracking-widest uppercase text-center text-pink-400 font-bold">OLIVIA WILSON</span>
+            <div class="w-12 h-12 mx-auto rounded-full bg-pink-200/70 flex items-center justify-center">
+              <div class="w-6 h-6 rounded-full bg-[#D48BA8]"></div>
+            </div>
+            <p class="font-serif italic font-bold text-xs text-center text-[#5B3748]">Daily<br/>Beauty Tips</p>
+          </div>`,
+        'last-summer': `
+          <div class="book-cover ${sizeClasses} bg-gradient-to-br from-[#F3E5D8] via-[#E5C9B3] to-[#C6D2D9] text-[#2C3539] p-3.5 flex flex-col justify-between select-none">
+            <span class="text-[7px] font-semibold uppercase tracking-widest text-slate-500 text-right">NOVEL</span>
+            <div class="my-auto text-center">
+              <p class="font-serif font-bold text-xs sm:text-sm leading-tight text-[#2B303A]">OUR<br/>LAST<br/>SUMMER</p>
+            </div>
+            <div class="h-2 w-10 mx-auto rounded-full bg-[#E0A96D]/70"></div>
+          </div>`,
+        'lb-happiness': `
+          <div class="book-cover ${sizeClasses} bg-[#F3E8FF] border border-purple-200/60 flex items-center justify-center">
+            <div class="w-4 h-7 rounded-full bg-[#7C3AED]/80"></div>
+          </div>`,
+        'lb-design': `
+          <div class="book-cover ${sizeClasses} bg-[#FFEDD5] border border-orange-200/60 flex flex-col justify-between p-1.5">
+            <div class="h-1.5 w-5 bg-[#EA580C] rounded-xs"></div>
+            <div class="h-3 w-full bg-white/80 rounded-xs"></div>
+          </div>`,
+        'lb-guardian': `
+          <div class="book-cover ${sizeClasses} bg-[#064E3B] flex items-center justify-center">
+            <div class="w-5 h-5 rounded-full bg-[#34D399] shadow-inner"></div>
+          </div>`,
+        'lb-friend': `
+          <div class="book-cover ${sizeClasses} bg-[#F8FAFC] border border-slate-200 flex items-center justify-center">
+            <span class="font-serif font-bold text-[8px] text-slate-700">Friend</span>
+          </div>`,
+        'lb-creative': `
+          <div class="book-cover ${sizeClasses} bg-[#FACC15] flex items-center justify-center">
+            <div class="w-5 h-5 rounded-full bg-[#1E293B]"></div>
+          </div>`
+      };
+
+      return covers[styleKey] || covers['night-sky'];
+    }
+
+    // =========================================================================
+    // 3. STATE MANAGEMENT & AUTHENTICATION
+    // =========================================================================
+    let appState = {
+      isAuthenticated: false,
+      user: {
+        name: 'Ade Adiningrat',
+        initials: 'AA',
+        email: 'ade.adiningrat@gmail.com',
+        provider: 'Google', // 'Google' | 'Facebook' | 'Email'
+        avatarBg: 'from-[#1B2559] to-[#3B4CCA]'
+      },
+      activeTab: 'dashboard', // 'dashboard' | 'library' | 'timeline' | 'trending'
+      searchQuery: '',
+      activeReaderBookId: 'beauty-of-the-night',
+      readerSampleIndex: 0,
+      readerFontSize: 16,
+      readerDark: false,
+      joinedCommunity: false,
+    };
+
+    // Simulate OAuth Login with Google or Facebook
+    function handleSocialLogin(provider) {
+      const btnId = provider === 'Google' ? 'googleLoginBtn' : 'facebookLoginBtn';
+      const btn = document.getElementById(btnId);
+      const originalHTML = btn.innerHTML;
+
+      // Show sleek loading spinner state
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span>Connecting to ${provider}...</span>
+      `;
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+
+        if (provider === 'Google') {
+          appState.user = {
+            name: 'Ade Adiningrat',
+            initials: 'AA',
+            email: 'ade.adiningrat@gmail.com',
+            provider: 'Google',
+            avatarBg: 'from-[#1B2559] to-[#3B4CCA]'
+          };
+        } else {
+          appState.user = {
+            name: 'Ade Adiningrat',
+            initials: 'AA',
+            email: 'ade.adiningrat@facebook.com',
+            provider: 'Facebook',
+            avatarBg: 'from-[#1877F2] to-[#0E52B5]'
+          };
+        }
+
+        completeAuthentication();
+      }, 650);
+    }
+
+    // Handle Email & Password Form Sign In
+    function handleEmailLogin(event) {
+      event.preventDefault();
+      const emailInput = document.getElementById('loginEmail').value.trim();
+      const btn = document.getElementById('emailLoginBtn');
+      const originalText = btn.textContent;
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = originalText;
+
+        const rawName = emailInput.split('@')[0].replace(/[._-]/g, ' ');
+        const formattedName = rawName
+          .split(' ')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ') || 'Ade Adiningrat';
+
+        const initials = formattedName
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase();
+
+        appState.user = {
+          name: formattedName,
+          initials: initials || 'AA',
+          email: emailInput,
+          provider: 'Email',
+          avatarBg: 'from-[#1EC760] to-[#139646]'
+        };
+
+        completeAuthentication();
+      }, 500);
+    }
+
+    // Transition from Login Gate to Main Dashboard
+    function completeAuthentication() {
+      appState.isAuthenticated = true;
+
+      // Sync User Profile in Header & Dropdown
+      const avatarEl = document.getElementById('headerUserAvatar');
+      avatarEl.textContent = appState.user.initials;
+      avatarEl.className = `w-9 h-9 rounded-full bg-gradient-to-tr ${appState.user.avatarBg} text-white flex items-center justify-center font-bold text-xs shadow-xs ring-2 ring-slate-100`;
+
+      document.getElementById('headerUserName').textContent = appState.user.name;
+      document.getElementById('headerUserSub').innerHTML = `Level 2 • <span class="text-[#1EC760] font-semibold">${appState.user.provider}</span>`;
+
+      document.getElementById('dropdownUserName').textContent = appState.user.name;
+      document.getElementById('dropdownUserEmail').textContent = appState.user.email;
+
+      const badgeEl = document.getElementById('dropdownProviderBadge');
+      if (appState.user.provider === 'Facebook') {
+        badgeEl.className = 'inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-[#1877F2]/10 text-[#1877F2] text-[10px] font-bold';
+        badgeEl.textContent = '✓ Connected via Facebook';
+      } else if (appState.user.provider === 'Google') {
+        badgeEl.className = 'inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#1EC760] text-[10px] font-bold';
+        badgeEl.textContent = '✓ Connected via Google';
+      } else {
+        badgeEl.className = 'inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold';
+        badgeEl.textContent = '✓ Email Account';
+      }
+
+      // Toggle views
+      document.getElementById('authGate').classList.add('hidden');
+      const appShell = document.getElementById('dashboardApp');
+      appShell.classList.remove('hidden');
+      appShell.classList.add('flex');
+
+      renderApp();
+      showToast(`Signed in as ${appState.user.name} via ${appState.user.provider}`);
+    }
+
+    // Log out and return to the Full-Screen Login Gate
+    function handleLogout() {
+      appState.isAuthenticated = false;
+      closeHeaderDropdowns();
+
+      const appShell = document.getElementById('dashboardApp');
+      appShell.classList.add('hidden');
+      appShell.classList.remove('flex');
+
+      const authGate = document.getElementById('authGate');
+      authGate.classList.remove('hidden');
+
+      lucide.createIcons();
+      showToast('You have been signed out.');
+    }
+
+    // =========================================================================
+    // 4. RENDERING VIEWS
+    // =========================================================================
+    function renderApp() {
+      const workspace = document.getElementById('mainWorkspace');
+      const query = appState.searchQuery.trim().toLowerCase();
+
+      // Update library count badge
+      const savedCount = BOOKS_DATA.filter(b => b.inLibrary).length;
+      document.getElementById('libraryBadge').textContent = savedCount;
+
+      // Update sidebar active styles
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        const navKey = btn.getAttribute('data-nav');
+        if (navKey === appState.activeTab) {
+          btn.className = 'nav-item w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold text-[#1B2559] bg-[#F4F5F9] transition-all';
+        } else {
+          btn.className = 'nav-item w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-[#A3AED0] hover:text-[#1B2559] hover:bg-slate-50/80 transition-all';
+        }
+      });
+
+      // If user is actively searching, display unified real-time Search Results view
+      if (query.length > 0) {
+        renderSearchResults(workspace, query);
+        lucide.createIcons();
+        return;
+      }
+
+      // Render active tab view
+      switch (appState.activeTab) {
+        case 'dashboard':
+          renderDashboardView(workspace);
+          break;
+        case 'library':
+          renderLibraryView(workspace);
+          break;
+        case 'timeline':
+          renderTimelineView(workspace);
+          break;
+        case 'trending':
+          renderTrendingView(workspace);
+          break;
+      }
+
+      lucide.createIcons();
+    }
+
+    // Primary Dashboard View (Matches Screenshot Architecture)
+    function renderDashboardView(container) {
+      const heroBook = BOOKS_DATA.find(b => b.id === 'beauty-of-the-night');
+      const trendingBooks = BOOKS_DATA.filter(b => b.section === 'trending');
+      const recommendedBooks = BOOKS_DATA.filter(b => b.section === 'recommended');
+      const leaderboardBooks = BOOKS_DATA.filter(b => b.section === 'leaderboard');
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-7 items-start">
+          
+          <!-- CENTER COLUMN (8 cols on XL) -->
+          <div class="xl:col-span-8 space-y-6">
+            
+            <!-- 1. Continue Reading Hero Card -->
+            <section class="bg-white rounded-[22px] p-6 sm:p-7 shadow-card border border-slate-100/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div class="flex-1 min-w-0">
+                <span class="text-xs font-medium text-[#A3AED0] block mb-1.5">Continue Reading</span>
+                <h1 class="text-xl sm:text-[22px] font-extrabold text-[#1B2559] tracking-tight mb-2.5">${heroBook.title}</h1>
+                <p class="text-xs sm:text-[13px] text-[#8F9BBA] leading-relaxed line-clamp-3 mb-5 max-w-xl">
+                  ${heroBook.description}
+                </p>
+                <div class="flex flex-wrap items-center gap-4">
+                  <button onclick="openReaderModal('${heroBook.id}')" class="px-6 py-2.5 rounded-full bg-[#1EC760] hover:bg-[#17A84F] active:scale-[0.99] text-white text-xs font-bold shadow-md shadow-[#1EC760]/25 transition-all cursor-pointer">
+                    Read Now
+                  </button>
+                  <div class="flex items-center gap-2 text-xs text-[#8F9BBA] font-medium">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                    <span>Page <strong class="text-[#1B2559] font-semibold">${heroBook.currentPage}</strong> of ${heroBook.pages}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Book Cover Thumbnail -->
+              <div onclick="openBookDetail('${heroBook.id}')" class="w-28 sm:w-32 shrink-0 cursor-pointer book-card-group self-center sm:self-auto" title="Click for details">
+                ${renderBookCoverHTML(heroBook.coverStyle, 'md')}
+              </div>
+            </section>
+
+            <!-- 2. Trending Now & Recommended Container Card -->
+            <section class="bg-white rounded-[22px] p-6 sm:p-7 shadow-card border border-slate-100/90 space-y-8">
+              
+              <!-- Trending Now -->
+              <div>
+                <div class="flex items-center justify-between mb-5">
+                  <h2 class="text-lg font-extrabold text-[#1B2559] tracking-tight">Trending Now</h2>
+                  <button onclick="switchTab('trending')" class="text-xs font-semibold text-[#8F9BBA] hover:text-[#1EC760] transition-colors">See All</button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+                  ${trendingBooks.map(book => renderBookCardHTML(book)).join('')}
+                </div>
+              </div>
+
+              <!-- Recommended for you -->
+              <div>
+                <div class="flex items-center justify-between mb-5">
+                  <h2 class="text-lg font-extrabold text-[#1B2559] tracking-tight">Recommended for you</h2>
+                  <button onclick="switchTab('trending')" class="text-xs font-semibold text-[#8F9BBA] hover:text-[#1EC760] transition-colors">See All</button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+                  ${recommendedBooks.map(book => renderBookCardHTML(book)).join('')}
+                </div>
+              </div>
+
+            </section>
+          </div>
+
+          <!-- RIGHT COLUMN (4 cols on XL) -->
+          <div class="xl:col-span-4 space-y-6">
+            
+            <!-- 1. Vibrant Green Promotional Card -->
+            <section class="relative overflow-hidden rounded-[22px] bg-[#1EC760] p-7 sm:p-8 text-white shadow-soft min-h-[260px] flex flex-col items-center justify-center text-center">
+              <!-- Decorative Organic Corner Circles (Matches Screenshot) -->
+              <div class="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-[#17A84F]/60 pointer-events-none"></div>
+              <div class="absolute -bottom-14 -left-12 w-40 h-40 rounded-full bg-[#17A84F]/60 pointer-events-none"></div>
+
+              <div class="relative z-10 max-w-[230px]">
+                <h2 class="text-xl sm:text-[22px] font-extrabold leading-snug tracking-tight mb-6">
+                  ${appState.joinedCommunity ? 'Welcome to the Book Lovers Club!' : 'Join our book lovers community here now'}
+                </h2>
+                <button onclick="openCommunityModal()" class="px-7 py-2.5 rounded-full bg-white hover:bg-slate-50 active:scale-[0.98] text-[#1B2559] text-xs font-extrabold shadow-md transition-all cursor-pointer">
+                  ${appState.joinedCommunity ? 'Member Active ✓' : 'Join Now'}
+                </button>
+              </div>
+            </section>
+
+            <!-- 2. Book of the Year Leaderboard Card -->
+            <section class="bg-white rounded-[22px] p-6 sm:p-7 shadow-card border border-slate-100/90">
+              <div class="text-center mb-6">
+                <h2 class="text-base sm:text-lg font-extrabold text-[#1B2559] tracking-tight">Book of the Year</h2>
+              </div>
+
+              <div class="space-y-4">
+                ${leaderboardBooks.map(book => `
+                  <div onclick="openBookDetail('${book.id}')" class="flex items-center gap-3.5 p-1.5 -mx-1.5 rounded-xl hover:bg-[#F4F5F9]/80 transition-colors cursor-pointer group">
+                    ${renderBookCoverHTML(book.coverStyle, 'sm')}
+                    <span class="w-4 text-center text-xs font-extrabold text-[#1B2559] shrink-0">${book.rank}</span>
+                    <div class="min-w-0 flex-1">
+                      <span class="text-[10px] font-medium text-[#A3AED0] block leading-none mb-1">${book.category}</span>
+                      <h3 class="text-xs font-bold text-[#1B2559] truncate group-hover:text-[#1EC760] transition-colors">${book.title}</h3>
+                      <p class="text-[11px] text-[#8F9BBA] truncate mt-0.5">by ${book.author}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+
+          </div>
+        </div>
+      `;
+    }
+
+    // Reusable Book Grid Card
+    function renderBookCardHTML(book) {
+      return `
+        <article onclick="openBookDetail('${book.id}')" class="book-card-group cursor-pointer flex flex-col">
+          <div class="relative mb-3">
+            ${renderBookCoverHTML(book.coverStyle, 'md')}
+            <button
+              onclick="event.stopPropagation(); toggleLibraryBookmark('${book.id}')"
+              class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs shadow-xs flex items-center justify-center text-slate-600 hover:text-[#1EC760] transition-transform hover:scale-110"
+              title="${book.inLibrary ? 'Saved in Your Library' : 'Save to Your Library'}"
+              aria-label="Bookmark book"
+            >
+              <i data-lucide="bookmark" class="w-3.5 h-3.5 ${book.inLibrary ? 'fill-[#1EC760] text-[#1EC760]' : ''}"></i>
+            </button>
+          </div>
+          <h3 class="text-[13px] font-bold text-[#1B2559] truncate group-hover:text-[#1EC760] transition-colors">${book.title}</h3>
+          <p class="text-[11px] text-[#A3AED0] truncate mt-0.5">by ${book.author}</p>
+        </article>
+      `;
+    }
+
+    // Real-Time Search Results View
+    function renderSearchResults(container, query) {
+      const matches = BOOKS_DATA.filter(book =>
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query) ||
+        book.publisher.toLowerCase().includes(query) ||
+        book.category.toLowerCase().includes(query)
+      );
+
+      container.innerHTML = `
+        <div class="bg-white rounded-[22px] p-6 sm:p-8 shadow-card border border-slate-100">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-semibold text-[#1EC760] uppercase tracking-wider">Instant Catalog Search</span>
+              <h1 class="text-xl font-extrabold text-[#1B2559] mt-0.5">
+                Showing ${matches.length} ${matches.length === 1 ? 'result' : 'results'} for "${appState.searchQuery}"
+              </h1>
+            </div>
+            <button onclick="clearSearch()" class="px-4 py-2 rounded-full bg-[#F4F5F9] hover:bg-slate-200/70 text-xs font-bold text-[#1B2559] transition-colors">
+              Clear Search
+            </button>
+          </div>
+
+          ${matches.length === 0 ? `
+            <div class="py-16 text-center max-w-md mx-auto">
+              <div class="w-14 h-14 rounded-2xl bg-[#F4F5F9] text-[#A3AED0] flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="search-x" class="w-7 h-7"></i>
+              </div>
+              <h3 class="text-base font-bold text-[#1B2559]">No matching books found</h3>
+              <p class="text-xs text-[#8F9BBA] mt-1.5 leading-relaxed">Try searching for titles like "Beauty", "Universe", "Journaling", or authors like "Samira Hadid".</p>
+            </div>
+          ` : `
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+              ${matches.map(book => renderBookCardHTML(book)).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    // Tab 2: Your Library View
+    function renderLibraryView(container) {
+      const savedBooks = BOOKS_DATA.filter(b => b.inLibrary);
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white rounded-[22px] p-6 sm:p-8 shadow-card border border-slate-100">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div>
+                <h1 class="text-xl font-extrabold text-[#1B2559]">Your Personal Library</h1>
+                <p class="text-xs text-[#8F9BBA] mt-1">Books you have bookmarked or are currently reading (${savedBooks.length} titles)</p>
+              </div>
+              <button onclick="switchTab('trending')" class="px-5 py-2.5 rounded-full bg-[#1EC760] hover:bg-[#17A84F] text-white text-xs font-bold shadow-xs transition-all">
+                + Discover More Books
+              </button>
+            </div>
+
+            ${savedBooks.length === 0 ? `
+              <div class="py-14 text-center">
+                <p class="text-sm font-bold text-[#1B2559]">Your shelf is empty</p>
+                <p class="text-xs text-[#8F9BBA] mt-1">Click the bookmark icon on any book to save it here.</p>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                ${savedBooks.map(book => {
+                  const pct = Math.min(100, Math.round((book.currentPage / book.pages) * 100));
+                  return `
+                    <div class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 hover:border-slate-200 bg-[#F4F5F9]/40 transition-all">
+                      <div onclick="openBookDetail('${book.id}')" class="w-20 shrink-0 cursor-pointer book-card-group">
+                        ${renderBookCoverHTML(book.coverStyle, 'md')}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#1EC760]">${book.category}</span>
+                        <h3 onclick="openBookDetail('${book.id}')" class="text-sm font-extrabold text-[#1B2559] truncate cursor-pointer hover:text-[#1EC760]">${book.title}</h3>
+                        <p class="text-xs text-[#8F9BBA] truncate">by ${book.author}</p>
+                        
+                        <div class="mt-3">
+                          <div class="flex justify-between text-[11px] font-medium text-slate-500 mb-1">
+                            <span>Page ${book.currentPage} of ${book.pages}</span>
+                            <span>${pct}%</span>
+                          </div>
+                          <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-[#1EC760] rounded-full" style="width: ${pct}%"></div>
+                          </div>
+                        </div>
+
+                        <div class="mt-3.5 flex items-center gap-2">
+                          <button onclick="openReaderModal('${book.id}')" class="px-4 py-1.5 rounded-full bg-[#1B2559] hover:bg-slate-800 text-white text-[11px] font-bold transition-colors">
+                            Continue Reading
+                          </button>
+                          <button onclick="toggleLibraryBookmark('${book.id}')" class="px-3 py-1.5 rounded-full text-[11px] font-semibold text-rose-500 hover:bg-rose-50 transition-colors">
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    // Tab 3: Community Timeline View
+    function renderTimelineView(container) {
+      const feedItems = [
+        {
+          user: 'Saba Hafezi',
+          initials: 'SH',
+          color: 'bg-amber-100 text-amber-800',
+          time: '14 minutes ago',
+          action: 'highlighted a passage in',
+          bookId: 'beauty-of-the-night',
+          bookTitle: 'The Beauty of the Night',
+          quote: '"Whenever the evening breeze swept down from the Alborz mountains, carrying the scent of damp earth and jasmine, Saba opened her worn notebook..."',
+          likes: 24
+        },
+        {
+          user: 'Ana Park',
+          initials: 'AP',
+          color: 'bg-rose-100 text-rose-800',
+          time: '1 hour ago',
+          action: 'finished reading & rated 5.0 ★',
+          bookId: 'nefarious-games',
+          bookTitle: 'Nefarious Games',
+          quote: '"An unforgettable psychological duel. Every chapter felt like a grandmaster endgame under time pressure!"',
+          likes: 41
+        },
+        {
+          user: 'Patrick Ness',
+          initials: 'PN',
+          color: 'bg-indigo-100 text-indigo-800',
+          time: '3 hours ago',
+          action: 'started reading',
+          bookId: 'the-value-of-design',
+          bookTitle: 'The value of Design',
+          quote: '"Exploring how everyday editorial typography shapes how deeply we absorb ideas."',
+          likes: 19
+        }
+      ];
+
+      container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-5">
+          <div class="bg-white rounded-[22px] p-6 shadow-card border border-slate-100 flex items-center justify-between">
+            <div>
+              <h1 class="text-xl font-extrabold text-[#1B2559]">Readers Timeline</h1>
+              <p class="text-xs text-[#8F9BBA] mt-0.5">Live reading updates and highlights from your online friends</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-[#1EC760]/15 text-[#1EC760] text-xs font-bold">13 Friends Online</span>
+          </div>
+
+          ${feedItems.map((item, idx) => `
+            <div class="bg-white rounded-[22px] p-6 shadow-card border border-slate-100">
+              <div class="flex items-center gap-3 mb-3.5">
+                <div class="w-10 h-10 rounded-full ${item.color} font-bold text-xs flex items-center justify-center">${item.initials}</div>
+                <div>
+                  <p class="text-xs text-[#1B2559]">
+                    <strong class="font-bold">${item.user}</strong> <span class="text-slate-500">${item.action}</span>
+                    <button onclick="openBookDetail('${item.bookId}')" class="font-bold text-[#1EC760] hover:underline">${item.bookTitle}</button>
+                  </p>
+                  <span class="text-[11px] text-[#A3AED0]">${item.time}</span>
+                </div>
+              </div>
+              <blockquote class="p-4 rounded-2xl bg-[#F4F5F9] text-xs sm:text-[13px] italic text-slate-600 leading-relaxed border-l-4 border-[#1EC760]">
+                ${item.quote}
+              </blockquote>
+              <div class="mt-4 flex items-center gap-4 text-xs font-semibold text-[#8F9BBA]">
+                <button onclick="this.classList.toggle('text-rose-500'); showToast('Liked ${item.user}\\'s note')" class="flex items-center gap-1.5 hover:text-rose-500 transition-colors">
+                  <i data-lucide="heart" class="w-4 h-4"></i> ${item.likes} Likes
+                </button>
+                <button onclick="openReaderModal('${item.bookId}')" class="flex items-center gap-1.5 hover:text-[#1B2559] transition-colors">
+                  <i data-lucide="book-open" class="w-4 h-4"></i> Open Book
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Tab 4: Full Trending Catalog View
+    function renderTrendingView(container) {
+      const catalogBooks = BOOKS_DATA.filter(b => b.section !== 'leaderboard');
+
+      container.innerHTML = `
+        <div class="bg-white rounded-[22px] p-6 sm:p-8 shadow-card border border-slate-100">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 class="text-xl font-extrabold text-[#1B2559]">Trending & Recommended Catalog</h1>
+              <p class="text-xs text-[#8F9BBA] mt-1">Explore the most borrowed and highest-rated titles on ePusnas this week</p>
+            </div>
+            <button onclick="switchTab('dashboard')" class="px-4 py-2 rounded-full bg-[#F4F5F9] hover:bg-slate-200/70 text-xs font-bold text-[#1B2559] transition-colors">
+              ← Back to Dashboard
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 sm:gap-6">
+            ${catalogBooks.map(book => renderBookCardHTML(book)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 5. MODALS & INTERACTIVE FEATURES
+    // =========================================================================
+    function openBookDetail(bookId) {
+      const book = BOOKS_DATA.find(b => b.id === bookId);
+      if (!book) return;
+
+      const modal = document.getElementById('bookDetailModal');
+      const content = document.getElementById('bookDetailContent');
+
+      content.innerHTML = `
+        <div class="relative p-6 sm:p-8">
+          <button onclick="closeModal('bookDetailModal')" class="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" aria-label="Close modal">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+
+          <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+            <div class="w-36 sm:w-44 shrink-0">
+              ${renderBookCoverHTML(book.coverStyle, 'md')}
+            </div>
+
+            <div class="flex-1 text-center sm:text-left">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1EC760]/12 text-[#1EC760] text-[11px] font-bold mb-2.5">
+                <span>${book.category}</span>
+                <span>•</span>
+                <span>★ ${book.rating}</span>
+              </div>
+
+              <h2 class="text-2xl font-extrabold text-[#1B2559] leading-tight">${book.title}</h2>
+              <p class="text-xs font-semibold text-[#8F9BBA] mt-1">by ${book.author} • <span class="text-slate-400">${book.publisher}</span></p>
+
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-4">
+                ${book.description}
+              </p>
+
+              <div class="grid grid-cols-3 gap-3 my-5 p-3 rounded-2xl bg-[#F4F5F9] text-center">
+                <div>
+                  <span class="text-[10px] font-semibold text-[#A3AED0] uppercase block">Pages</span>
+                  <span class="text-sm font-extrabold text-[#1B2559]">${book.pages}</span>
+                </div>
+                <div class="border-x border-slate-200">
+                  <span class="text-[10px] font-semibold text-[#A3AED0] uppercase block">Language</span>
+                  <span class="text-sm font-extrabold text-[#1B2559]">English</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-semibold text-[#A3AED0] uppercase block">Progress</span>
+                  <span class="text-sm font-extrabold text-[#1EC760]">Pg ${book.currentPage}</span>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                <button onclick="closeModal('bookDetailModal'); openReaderModal('${book.id}')" class="px-6 py-3 rounded-full bg-[#1EC760] hover:bg-[#17A84F] text-white text-xs font-extrabold shadow-md shadow-[#1EC760]/25 flex items-center gap-2 transition-all">
+                  <i data-lucide="book-open" class="w-4 h-4"></i>
+                  Read Sample Now
+                </button>
+                <button onclick="toggleLibraryBookmark('${book.id}'); openBookDetail('${book.id}')" class="px-5 py-3 rounded-full border border-slate-200 hover:bg-slate-50 text-[#1B2559] text-xs font-bold flex items-center gap-2 transition-all">
+                  <i data-lucide="bookmark" class="w-4 h-4 ${book.inLibrary ? 'fill-[#1EC760] text-[#1EC760]' : ''}"></i>
+                  ${book.inLibrary ? 'Saved in Library' : 'Add to Library'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    // Open Interactive Reader Modal
+    function openReaderModal(bookId) {
+      const book = BOOKS_DATA.find(b => b.id === bookId) || BOOKS_DATA[0];
+      appState.activeReaderBookId = book.id;
+      appState.readerSampleIndex = 0;
+
+      renderReaderPage();
+
+      const modal = document.getElementById('readerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function renderReaderPage() {
+      const book = BOOKS_DATA.find(b => b.id === appState.activeReaderBookId);
+      const samples = book.samplePages || [];
+      const currentSample = samples[appState.readerSampleIndex] || samples[0];
+
+      document.getElementById('readerBookTitle').textContent = book.title;
+      document.getElementById('readerBookAuthor').textContent = `by ${book.author}`;
+      document.getElementById('readerChapterLabel').textContent = currentSample.chapter;
+      document.getElementById('readerChapterHeading').textContent = currentSample.heading;
+
+      const textContainer = document.getElementById('readerPageText');
+      textContainer.style.fontSize = `${appState.readerFontSize}px`;
+      textContainer.innerHTML = currentSample.paragraphs.map(p => `<p>${p}</p>`).join('');
+
+      // Sync page counter & progress bar
+      const displayPage = Math.min(book.pages, book.currentPage + appState.readerSampleIndex);
+      const progressPct = Math.max(8, Math.round((displayPage / book.pages) * 100));
+
+      document.getElementById('readerPageIndicator').textContent = `Page ${displayPage} of ${book.pages}`;
+      document.getElementById('readerProgressBar').style.width = `${progressPct}%`;
+
+      document.getElementById('prevPageBtn').disabled = appState.readerSampleIndex === 0;
+      document.getElementById('nextPageBtn').innerHTML =
+        appState.readerSampleIndex >= samples.length - 1
+          ? `Finish Sample <i data-lucide="check" class="w-4 h-4"></i>`
+          : `Next Page <i data-lucide="chevron-right" class="w-4 h-4"></i>`;
+
+      lucide.createIcons();
+    }
+
+    function turnPage(delta) {
+      const book = BOOKS_DATA.find(b => b.id === appState.activeReaderBookId);
+      const maxIndex = book.samplePages.length - 1;
+      const nextIdx = appState.readerSampleIndex + delta;
+
+      if (nextIdx < 0) return;
+      if (nextIdx > maxIndex) {
+        book.currentPage = Math.min(book.pages, book.currentPage + 1);
+        closeModal('readerModal');
+        showToast(`Progress saved! You're on Page ${book.currentPage} of "${book.title}".`);
+        renderApp();
+        return;
+      }
+
+      appState.readerSampleIndex = nextIdx;
+      book.currentPage = Math.min(book.pages, book.currentPage + (delta > 0 ? 1 : 0));
+      renderReaderPage();
+      renderApp();
+    }
+
+    function changeReaderFontSize(step) {
+      appState.readerFontSize = Math.min(22, Math.max(13, appState.readerFontSize + step));
+      document.getElementById('readerPageText').style.fontSize = `${appState.readerFontSize}px`;
+    }
+
+    function toggleReaderTheme() {
+      appState.readerDark = !appState.readerDark;
+      const container = document.getElementById('readerContainer');
+      const header = document.getElementById('readerHeader');
+      const footer = document.getElementById('readerFooter');
+      const btn = document.getElementById('readerThemeBtn');
+
+      if (appState.readerDark) {
+        container.classList.remove('bg-[#FCFBF8]', 'text-[#1E293B]');
+        container.classList.add('bg-[#141824]', 'text-slate-200');
+        header.classList.replace('bg-white/80', 'bg-[#1B2030]');
+        footer.classList.replace('bg-white/80', 'bg-[#1B2030]');
+        btn.innerHTML = `<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>`;
+      } else {
+        container.classList.add('bg-[#FCFBF8]', 'text-[#1E293B]');
+        container.classList.remove('bg-[#141824]', 'text-slate-200');
+        header.classList.replace('bg-[#1B2030]', 'bg-white/80');
+        footer.classList.replace('bg-[#1B2030]', 'bg-white/80');
+        btn.innerHTML = `<i data-lucide="moon" class="w-4 h-4"></i>`;
+      }
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 6. NAVIGATION, SEARCH & UTILITY HELPERS
+    // =========================================================================
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      appState.searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+
+      // Close mobile sidebar if open
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+
+      renderApp();
+    }
+
+    function handleSearch(val) {
+      appState.searchQuery = val;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (val.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderApp();
+    }
+
+    function clearSearch() {
+      appState.searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderApp();
+    }
+
+    function toggleLibraryBookmark(bookId) {
+      const book = BOOKS_DATA.find(b => b.id === bookId);
+      if (!book) return;
+      book.inLibrary = !book.inLibrary;
+      showToast(
+        book.inLibrary
+          ? `Added "${book.title}" to Your Library`
+          : `Removed "${book.title}" from Your Library`
+      );
+      renderApp();
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    function openCommunityModal() {
+      const modal = document.getElementById('communityModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function submitCommunityForm(e) {
+      e.preventDefault();
+      appState.joinedCommunity = true;
+      closeModal('communityModal');
+      showToast('Welcome aboard! You joined the ePusnas Book Lovers Community.');
+      renderApp();
+    }
+
+    function openHelpModal() {
+      const modal = document.getElementById('helpModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function toggleHeaderDropdown(id) {
+      const target = document.getElementById(id);
+      const isHidden = target.classList.contains('hidden');
+      closeHeaderDropdowns();
+      if (isHidden) {
+        target.classList.remove('hidden');
+      }
+    }
+
+    function closeHeaderDropdowns() {
+      ['msgPopover', 'notifPopover', 'profilePopover'].forEach(id => {
+        document.getElementById(id)?.classList.add('hidden');
+      });
+    }
+
+    // Close popovers when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('header')) {
+        closeHeaderDropdowns();
+      }
+    });
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal('bookDetailModal');
+        closeModal('readerModal');
+        closeModal('communityModal');
+        closeModal('helpModal');
+        closeHeaderDropdowns();
+      }
+    });
+
+    // Toast notification helper
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto flex items-center gap-2.5 bg-[#1B2559] text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-lg border border-white/10 animate-modal';
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-[#1EC760] shrink-0"></span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(6px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 260);
+      }, 3000);
+    }
+
+    // Initialize App on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      if (appState.isAuthenticated) {
+        renderApp();
+      }
+    });
+  </script>
+</body>
+</html>
